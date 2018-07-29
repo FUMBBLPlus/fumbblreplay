@@ -23,7 +23,7 @@ metadata = dict(metadata_pobj.findall(initpy))
 
 
 setup(
-  name = "sr",
+  name = "fumbblreplay",
   version = metadata["version"],
   description = "FUMBBL Replay Fetcher",
   long_description = readme,
@@ -44,7 +44,7 @@ setup(
       "fantasyfootball",
       "fumbbl",
   ],
-  packages = ["sr"],
+  packages = ["fumbblreplay"],
   package_dir = {
       "fumbblreplay": "fumbblreplay",
   },
