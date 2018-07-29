@@ -12,11 +12,11 @@ import websockets
 
 LZString = lzstring.LZString()
 
-SCHEME = 'ws'
-NETLOC = 'fumbbl.com:22223'
-PATH = '/command'
+SCHEME = "ws"
+NETLOC = "fumbbl.com:22223"
+PATH = "/command"
 
-JSON_SEPARATORS = ',', ':'  # more compressed without spaces
+JSON_SEPARATORS = ",", ":"  # more compressed without spaces
 
 try:
   mydirpath = pathlib.Path(__file__).parent
@@ -32,7 +32,7 @@ with (mydirpath / "clientCloseSession.json").open() as f:
   clientCloseSession = json.load(f)
 
 
-def obj2msg(obj, level=None):
+def obj2msg(obj):
   _json = json.dumps(obj, separators=JSON_SEPARATORS)
   _msg =  LZString.compressToUTF16(_json)
   return _msg
