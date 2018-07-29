@@ -23,3 +23,10 @@ Upgrade
 ```bash
 $ pip install git+git://github.com/FUMBBLPlus/fumbblreplay.git@master --upgrade
 ```
+
+Usage
+-----
+
+**By no way use this library to mass download replay data from the FUMBBL server without contacting to Christer and SzieberthAdam in the first place!**
+
+For usage instructions, please contact SzieberthAdam.
