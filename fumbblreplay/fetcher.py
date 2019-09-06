@@ -1,7 +1,9 @@
 import asyncio
 import copy
+import datetime
 import json
 import pathlib
+import time
 
 try:
   from . import lzstring
@@ -24,6 +26,24 @@ except NameError:
   mydirpath = pathlib.Path(".")
 
 
+_delay = None
+def _delay_f():
+  h = datetime.datetime.utcnow().hour
+  if h in range(2, 10):
+    return 5
+  elif h in range(10, 20):
+    return 10
+  else:
+    return 20
+_sem = asyncio.Semaphore(1)
+async def _sem_release(loop):
+  if _delay:
+    t = _delay - time.monotonic()
+    if 0 < t:
+      await asyncio.sleep(t, loop=loop)
+  _sem.release()
+
+
 # The objects below are mutable!
 # Never change them without copying first!
 with (mydirpath / "clientReplay.json").open() as f:
@@ -44,30 +64,37 @@ def msg2obj(msg):
   return _obj
 
 
-async def async_get_replay_data(replay_id):
+async def async_get_replay_data(replay_id, *, loop=None):
+  global _delay
   clientReplay_ = copy.deepcopy(clientReplay)
   clientReplay_["gameId"] = int(replay_id)
   url = f'{SCHEME}://{NETLOC}{PATH}'
-  async with websockets.connect(url) as websocket:
-    msg = obj2msg(clientReplay_)
-    await websocket.send(msg)
-    responses = []
-    prev_obj = ...
-    while True:
-      msg = await websocket.recv()
-      obj = msg2obj(msg)
-      # At end, server repeats the same data endlessly.
-      if obj != prev_obj:
-        responses.append(obj)
-        prev_obj = obj
-      else:
-        break
-    msg = obj2msg(clientCloseSession)
-    await websocket.send(msg)
+  await _sem.acquire()
+  try:
+    async with websockets.connect(url, loop=loop) as websocket:
+      msg = obj2msg(clientReplay_)
+      await websocket.send(msg)
+      responses = []
+      prev_obj = ...
+      while True:
+        msg = await websocket.recv()
+        obj = msg2obj(msg)
+        # At end, server repeats the same data endlessly.
+        if obj != prev_obj:
+          responses.append(obj)
+          prev_obj = obj
+        else:
+          break
+      msg = obj2msg(clientCloseSession)
+      await websocket.send(msg)
+  finally:
+    _delay = time.monotonic() + _delay_f()
+    asyncio.shield(_sem_release(loop))
   return responses
 
 
-def get_replay_data(replay_id):
-  return asyncio.get_event_loop().run_until_complete(
-      async_get_replay_data(replay_id)
+def get_replay_data(replay_id, *, loop=None):
+  loop = loop or asyncio.get_event_loop()
+  return loop.run_until_complete(
+      async_get_replay_data(replay_id, loop=loop)
   )
