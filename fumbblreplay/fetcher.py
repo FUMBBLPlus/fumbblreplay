@@ -37,10 +37,7 @@ def _delay_f():
     return 20
 _sem = asyncio.Semaphore(1)
 async def _sem_release(loop):
-  if _delay:
-    t = _delay - time.monotonic()
-    if 0 < t:
-      await asyncio.sleep(t, loop=loop)
+  await asyncio.sleep(_delay_f(), loop=loop)
   _sem.release()
 
 
