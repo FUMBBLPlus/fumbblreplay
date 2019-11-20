@@ -52,11 +52,11 @@ with (mydirpath / "clientCloseSession.json").open() as f:
 def obj2msg(obj):
   _json = json.dumps(obj, separators=JSON_SEPARATORS)
   _msg =  LZString.compressToUTF16(_json)
-  return _msg
+  return _msg.encode("UTF8")
 
 
 def msg2obj(msg):
-  _json = LZString.decompressFromUTF16(msg)
+  _json = LZString.decompressFromUTF16(msg.decode("UTF8"))
   _obj = json.loads(_json)
   return _obj
 
