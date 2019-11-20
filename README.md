@@ -1,7 +1,7 @@
 FUMBBL Replay Fetcher
 ==
 
-version 1.0
+version 1.1 (FFB 1.3.5.)
 
 This is the documentation of the ``FUMBBL Replay Fetcher`` Python library and scripts.
 The code may be useful for [FUMBBL](http://fumbbl.com/) community members with Python programming skills only.
